@@ -1,0 +1,40 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>ru.job4j</groupId>
+    <artifactId>job4j_grabber</artifactId>
+    <version>1.0.1</version>
+    <packaging>jar</packaging>
+    <name>GrabberApp</name>
+    <url>https://github.com/eskendarov/job4j_grabber</url>
+    <developers>
+        <developer>
+            <name>Enver Eskendarov</name>
+            <email>envereskendarov@gmail.com</email>
+            <timezone>+3</timezone>
+            <organization>job4j</organization>
+            <organizationUrl>https://job4j.ru/</organizationUrl>
+            <roles>
+                <role>student</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <properties>
+        <maven.compiler.source>14</maven.compiler.source>
+        <maven.compiler.target>14</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.2</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+</project>
