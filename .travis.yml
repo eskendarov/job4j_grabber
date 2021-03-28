@@ -19,6 +19,12 @@ notifications:
     on_success: never # default: change
     on_failure: always # default: always
 
+services:
+  - postgresql
+
+before_install:
+  - psql -c 'create database rabbit;' -U postgres
+
 env:
   global:
     - CODECOV_TOKEN='e0d386e6-6d16-4bf0-a8fd-ed708788e50e'
