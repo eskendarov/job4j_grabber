@@ -36,7 +36,6 @@ public class AlertRabbit {
                 res.getString("username"),
                 res.getString("password"))
         ) {
-            Class.forName(res.getString("driver"));
             final Scheduler sch = StdSchedulerFactory.getDefaultScheduler();
             sch.start();
             final JobDataMap data = new JobDataMap();
