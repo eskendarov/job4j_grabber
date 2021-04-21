@@ -4,6 +4,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import ru.job4j.utils.SqlRuDateTimeParser;
+
+import java.time.format.DateTimeFormatter;
 
 /**
  * SqlRuParse извлекает текст из HTML по аттрибутам тегов HTML.
@@ -21,7 +24,14 @@ public class SqlRuParse {
         for (int i = 0; i < row.size(); i++) {
             final Element href = row.get(i).child(0);
             System.out.println(href.attr("href"));
-            System.out.printf("%s (%s)%n", href.text(), date.get(i).text());
+            System.out.printf("%s (%s)%n",
+                    href.text(),
+                    new SqlRuDateTimeParser()
+                            .parse(date.get(i).text())
+                            .format(DateTimeFormatter
+                                    .ofPattern("EEE, d MMM yy HH:mm")
+                            )
+            );
         }
     }
 }
