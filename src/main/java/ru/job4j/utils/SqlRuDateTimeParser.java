@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -20,10 +21,12 @@ public class SqlRuDateTimeParser implements DateTimeParser {
         final String[] date = splitDate[0].split(" ");
         final Locale locale = Locale.getDefault();
         final LocalDate localDate
-                // Парсинг месяцев Locale.RU в формате 'мес.' с точкой
+                // Парсинг месяцев Locale.RU в формате 'мес'
                 = date.length == 3 ? LocalDate.parse(
-                    String.format("%s %s. %s", date[0], date[1], date[2]),
-                    DateTimeFormatter.ofPattern("d MMM yy", locale))
+                    String.format("%s %s %s",
+                            date[0], getMonth(date[1]), date[2]
+                    ),
+                    DateTimeFormatter.ofPattern("d M yy", locale))
                 // Преобразование в текущую дату (date = "сегодня")
                 : date[0].startsWith("сегодня") ? LocalDate.now()
                 // Преобразование в вчерашнюю дату (date = "вчера")
@@ -32,5 +35,10 @@ public class SqlRuDateTimeParser implements DateTimeParser {
                 DateTimeFormatter.ofPattern("HH:mm", locale)
         );
         return LocalDateTime.of(localDate, localTime);
+    }
+
+    private int getMonth(String month) {
+        return List.of("янв", "фев", "мар", "апр", "май", "июн",
+                "июл", "авг", "сен", "окт", "ноя", "дек").indexOf(month) + 1;
     }
 }
