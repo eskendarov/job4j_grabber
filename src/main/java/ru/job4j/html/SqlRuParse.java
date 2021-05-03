@@ -6,7 +6,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import ru.job4j.utils.SqlRuDateTimeParser;
 
-import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 
 /**
  * SqlRuParse извлекает текст из HTML по аттрибутам тегов HTML.
@@ -17,25 +17,22 @@ import java.time.format.DateTimeFormatter;
 public class SqlRuParse {
 
     public static void main(String[] args) throws Exception {
+        final ArrayList<Post> posts = new ArrayList<>();
         int p = 1;
         while (p < 6) {
             final Document doc = Jsoup
-                    .connect("https://www.sql.ru/forum/job-offers/" + p).get();
+                    .connect("https://www.sql.ru/forum/job-offers/" + p++).get();
             final Elements row = doc.select(".postslisttopic");
             final Elements date = doc.select("td[style].altCol");
-            System.out.println("Page: #" + p++);
             for (int i = 0; i < row.size(); i++) {
                 final Element href = row.get(i).child(0);
-                System.out.println(href.attr("href"));
-                System.out.printf("%s (%s)%n",
+                posts.add(new Post(
                         href.text(),
-                        new SqlRuDateTimeParser()
-                                .parse(date.get(i).text())
-                                .format(DateTimeFormatter
-                                        .ofPattern("EEE, d MMM yy HH:mm")
-                                )
+                        new SqlRuDateTimeParser().parse(date.get(i).text()),
+                        href.attr("href"))
                 );
             }
         }
+        posts.forEach(System.out::println);
     }
 }
