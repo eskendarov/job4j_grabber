@@ -7,13 +7,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-public class SqlRuDateTimeParserTest {
+public class SqlTimeParserTest {
 
     @Test
     public void parseDate() {
-        LocalDateTime res1 = new SqlRuDateTimeParser().parse("сегодня, 04:23");
-        LocalDateTime res2 = new SqlRuDateTimeParser().parse("вчера, 12:05");
-        LocalDateTime res3 = new SqlRuDateTimeParser().parse("2 дек 19, 00:20");
+        LocalDateTime res1 = new SqlTimeParser().parse("сегодня, 04:23");
+        LocalDateTime res2 = new SqlTimeParser().parse("вчера, 12:05");
+        LocalDateTime res3 = new SqlTimeParser().parse("2 дек 19, 00:20");
         LocalDateTime exp1 = LocalDateTime.of(
                 LocalDate.now(), LocalTime.of(4, 23));
         LocalDateTime exp2 = LocalDateTime.of(

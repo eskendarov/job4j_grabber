@@ -2,13 +2,15 @@ package ru.job4j.html;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import ru.job4j.utils.SqlRuDateTimeParser;
+import ru.job4j.utils.SqlTimeParser;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * SqlRuParse извлекает текст из HTML по аттрибутам тегов HTML.
@@ -18,39 +20,61 @@ import java.util.List;
  */
 public class SqlRuParse implements Parse {
 
-    @Override
-    public List<Post> list(String link) {
-        Document doc = null;
+    private final Map<Integer, Post> postMap = new LinkedHashMap<>();
+
+    private Document getDocument(final String link) {
+        Document document = null;
         try {
-            doc = Jsoup.connect(link).get();
+            document = Jsoup.connect(link).get();
+            return Jsoup.connect(link).get();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return document;
+    }
+
+    @Override
+    public List<Post> list(final String link) {
+        final Document doc = getDocument(link);
         final Elements topics = doc.select(".postslisttopic");
-        final Elements date = doc.select("td[style].altCol");
-        final List<Post> posts = new ArrayList<>();
+        final Elements id = doc.select(".altCol:nth-child(3)");
+        final Elements datePosted = doc.select(".altCol:nth-child(6)");
+        final List<Post> postList = new ArrayList<>();
         for (int i = 0; i < topics.size(); i++) {
-            final Element href = topics.get(i).child(0);
-            posts.add(new Post(
-                    href.text(),
-                    new SqlRuDateTimeParser().parse(date.get(i).text()),
-                    href.attr("href"))
+            final String name = topics.get(i).text();
+            final String topicLink = topics.get(i).child(0).attr("href");
+            final int userId = Integer.parseInt(
+                    id.get(i).child(0).attr("href").split("=")[1]
             );
+            final LocalDateTime dateTime = new SqlTimeParser()
+                    .parse(datePosted.get(i).text());
+            final Post post = new Post(
+                    userId, name, topicLink, dateTime, null, null
+            );
+            postList.add(post);
+            postMap.put(userId, post);
         }
-        return posts;
+        return postList;
     }
 
     @Override
     public Post detail(String link) {
-        Document doc = null;
-        try {
-            doc = Jsoup.connect(link).get();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        final Document doc = getDocument(link);
+        final int userId = Integer.parseInt(doc.select(".msgBody")
+                .first().child(0).attr("href").split("=")[1]
+        );
         final String text = doc.select(".msgBody").get(1).text();
-        final String create = doc.select(".msgFooter").get(0).text()
-                .split(" \\[")[0];
-        return new Post(text, new SqlRuDateTimeParser().parse(create), link);
+        final LocalDateTime created = new SqlTimeParser()
+                .parse(doc.select(".msgFooter")
+                        .get(0).text().split(" \\[")[0]
+                );
+        final Post post = postMap.get(userId);
+        return new Post(
+                post.getId(),
+                post.getName(),
+                post.getLink(),
+                post.getPosted(),
+                text, created
+        );
     }
 }

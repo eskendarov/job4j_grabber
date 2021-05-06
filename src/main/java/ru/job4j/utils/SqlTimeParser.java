@@ -13,7 +13,7 @@ import java.util.Locale;
  * @author Enver Eskendarov
  * @version 1.0 21/04/2021
  */
-public class SqlRuDateTimeParser implements DateTimeParser {
+public class SqlTimeParser implements DateTimeParser {
 
     @Override
     public LocalDateTime parse(String parse) {
