@@ -26,7 +26,6 @@ public class SqlRuParse implements Parse {
         Document document = null;
         try {
             document = Jsoup.connect(link).get();
-            return Jsoup.connect(link).get();
         } catch (IOException e) {
             e.printStackTrace();
         }
