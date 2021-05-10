@@ -38,7 +38,6 @@ public class SqlRuParse implements Parse {
         final Elements topics = doc.select(".postslisttopic");
         final Elements id = doc.select(".altCol:nth-child(3)");
         final Elements datePosted = doc.select(".altCol:nth-child(6)");
-        final List<Post> postList = new ArrayList<>();
         for (int i = 0; i < topics.size(); i++) {
             final String name = topics.get(i).text();
             final String topicLink = topics.get(i).child(0).attr("href");
@@ -48,12 +47,11 @@ public class SqlRuParse implements Parse {
             final LocalDateTime dateTime = new SqlTimeParser()
                     .parse(datePosted.get(i).text());
             final Post post = new Post(
-                    userId, name, topicLink, dateTime, null, null
+                    userId, name, null, topicLink, null, dateTime
             );
-            postList.add(post);
             postMap.put(userId, post);
         }
-        return postList;
+        return new ArrayList<>(postMap.values());
     }
 
     @Override
@@ -71,9 +69,10 @@ public class SqlRuParse implements Parse {
         return new Post(
                 post.getId(),
                 post.getName(),
+                text,
                 post.getLink(),
-                post.getPosted(),
-                text, created
+                created,
+                post.getPosted()
         );
     }
 }

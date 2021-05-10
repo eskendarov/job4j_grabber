@@ -21,25 +21,25 @@ public class Post {
     /**
      * @param id      - первичный ключ
      * @param name    - имя вакансии
-     * @param link    - ссылка на вакансию
-     * @param posted  - дата публикации поста
      * @param text    - текст вакансии
+     * @param link    - ссылка на вакансию
      * @param created - дата первого поста
+     * @param posted  - дата публикации поста
      */
     public Post(
             final int id,
             final String name,
-            final String link,
-            final LocalDateTime posted,
             final String text,
-            final LocalDateTime created
+            final String link,
+            final LocalDateTime created,
+            final LocalDateTime posted
     ) {
         this.id = id;
         this.name = name;
-        this.link = link;
-        this.posted = posted;
         this.text = text;
+        this.link = link;
         this.created = created;
+        this.posted = posted;
     }
 
     public int getId() {
@@ -87,8 +87,8 @@ public class Post {
     @Override
     public String toString() {
         return String.format(
-                "id: %s, name: %s, posted: %s link: %s\ntext: %s created: %s",
-                id, name, posted, link, text, created
+                "id: %s, name: %s, text: %s, link: %s, created: %s, posted: %s",
+                id, name, text, link, created, posted
         );
     }
 }
