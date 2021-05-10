@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 /**
- * PsqlStore Class description goes here.
+ * PsqlStore Class записывает данные с сайта sql.ru/forum/job-offers/ в БД.
  *
  * @author Enver Eskendarov
  * @version 1.0 08/05/2021
