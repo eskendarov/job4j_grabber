@@ -32,7 +32,7 @@ public class Grabber implements Grab {
     private final ResourceBundle res = ResourceBundle.getBundle("grabber");
 
     public Store store() {
-        return new PsqlStore(res);
+        return new PsqlStore();
     }
 
     public Scheduler scheduler() throws SchedulerException {
@@ -73,7 +73,6 @@ public class Grabber implements Grab {
             );
         }
     }
-
 
     public static void main(String[] args) throws Exception {
         final Grabber grab = new Grabber();

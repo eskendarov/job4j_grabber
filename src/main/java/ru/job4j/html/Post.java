@@ -11,36 +11,12 @@ import java.util.Objects;
  */
 public class Post {
 
-    private final int id;
-    private final String name;
-    private final String text;
-    private final String link;
-    private final LocalDateTime created;
-    private final LocalDateTime posted;
-
-    /**
-     * @param id      - первичный ключ
-     * @param name    - имя вакансии
-     * @param text    - текст вакансии
-     * @param link    - ссылка на вакансию
-     * @param created - дата первого поста
-     * @param posted  - дата публикации поста
-     */
-    public Post(
-            final int id,
-            final String name,
-            final String text,
-            final String link,
-            final LocalDateTime created,
-            final LocalDateTime posted
-    ) {
-        this.id = id;
-        this.name = name;
-        this.text = text;
-        this.link = link;
-        this.created = created;
-        this.posted = posted;
-    }
+    private int id;
+    private String name;
+    private String text;
+    private String link;
+    private LocalDateTime created;
+    private LocalDateTime posted;
 
     public int getId() {
         return id;
@@ -67,21 +43,32 @@ public class Post {
     }
 
     @Override
-    public boolean equals(final Object o) {
+    public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Post)) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
         final Post post = (Post) o;
         return getId() == post.getId()
-                && getLink().equals(post.getLink());
+                && Objects.equals(getName(), post.getName())
+                && Objects.equals(getText(), post.getText())
+                && Objects.equals(getLink(), post.getLink())
+                && Objects.equals(getCreated(), post.getCreated())
+                && Objects.equals(getPosted(), post.getPosted());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getLink());
+        return Objects.hash(
+                getId(),
+                getName(),
+                getText(),
+                getLink(),
+                getCreated(),
+                getPosted()
+        );
     }
 
     @Override
@@ -90,5 +77,66 @@ public class Post {
                 "id: %s, name: %s, text: %s, link: %s, created: %s, posted: %s",
                 id, name, text, link, created, posted
         );
+    }
+
+    public static class Builder {
+
+        private final Post post;
+
+        public Builder() {
+            post = new Post();
+        }
+
+        /**
+         * @param id - первичный ключ
+         */
+        public Builder setId(int id) {
+            post.id = id;
+            return this;
+        }
+
+        /**
+         * @param name - имя вакансии
+         */
+        public Builder setName(String name) {
+            post.name = name;
+            return this;
+        }
+
+        /**
+         * @param text - текст вакансии
+         */
+        public Builder setText(String text) {
+            post.text = text;
+            return this;
+        }
+
+        /**
+         * @param link - ссылка на вакансию
+         */
+        public Builder setLink(String link) {
+            post.link = link;
+            return this;
+        }
+
+        /**
+         * @param created - дата первого поста
+         */
+        public Builder setCreated(LocalDateTime created) {
+            post.created = created;
+            return this;
+        }
+
+        /**
+         * @param posted - дата публикации поста
+         */
+        public Builder setPosted(LocalDateTime posted) {
+            post.posted = posted;
+            return this;
+        }
+
+        public Post build() {
+            return post;
+        }
     }
 }

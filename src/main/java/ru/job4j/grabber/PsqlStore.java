@@ -21,11 +21,19 @@ import java.util.ResourceBundle;
  */
 public class PsqlStore implements Store, AutoCloseable {
 
-    private final Connection connection;
+    private Connection connection;
 
-    public PsqlStore(ResourceBundle res) {
+    public PsqlStore() {
+        init();
+    }
+
+    public PsqlStore(Connection connection) {
+        this.connection = connection;
+    }
+
+    public void init() {
+        final ResourceBundle res = ResourceBundle.getBundle("grabber");
         try {
-            Class.forName(res.getString("driver"));
             connection = DriverManager.getConnection(
                     res.getString("url"),
                     res.getString("username"),
@@ -39,15 +47,14 @@ public class PsqlStore implements Store, AutoCloseable {
     @Override
     public void save(Post post) {
         try (PreparedStatement statement = connection.prepareStatement(
-                "insert into post(id, name, text, link, created, posted) "
-                        + "values (?, ?, ?, ?, ?, ?)")
+                "insert into post(name, text, link, created, posted) "
+                        + "values (?, ?, ?, ?, ?)")
         ) {
-            statement.setInt(1, post.getId());
-            statement.setString(2, post.getName());
-            statement.setString(3, post.getText());
-            statement.setString(4, post.getLink());
-            statement.setTimestamp(5, Timestamp.valueOf(post.getCreated()));
-            statement.setTimestamp(6, Timestamp.valueOf(post.getPosted()));
+            statement.setString(1, post.getName());
+            statement.setString(2, post.getText());
+            statement.setString(3, post.getLink());
+            statement.setTimestamp(4, Timestamp.valueOf(post.getCreated()));
+            statement.setTimestamp(5, Timestamp.valueOf(post.getPosted()));
             statement.execute();
         } catch (Exception e) {
             e.printStackTrace();
@@ -62,16 +69,17 @@ public class PsqlStore implements Store, AutoCloseable {
         ) {
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
-                    posts.add(new Post(
-                            resultSet.getInt("id"),
-                            resultSet.getString("name"),
-                            resultSet.getString("text"),
-                            resultSet.getString("link"),
-                            resultSet.getTimestamp("created")
-                                    .toLocalDateTime(),
-                            resultSet.getTimestamp("posted")
-                                    .toLocalDateTime()
-                    ));
+                    posts.add(new Post.Builder()
+                            .setId(resultSet.getInt("id"))
+                            .setName(resultSet.getString("name"))
+                            .setText(resultSet.getString("text"))
+                            .setLink(resultSet.getString("link"))
+                            .setCreated(resultSet.getTimestamp("created")
+                                    .toLocalDateTime())
+                            .setPosted(resultSet.getTimestamp("posted")
+                                    .toLocalDateTime())
+                            .build()
+                    );
                 }
             }
         } catch (Exception e) {
@@ -89,16 +97,16 @@ public class PsqlStore implements Store, AutoCloseable {
             statement.setInt(1, Integer.parseInt(id));
             final ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
-                post = new Post(
-                        resultSet.getInt("id"),
-                        resultSet.getString("name"),
-                        resultSet.getString("text"),
-                        resultSet.getString("link"),
-                        resultSet.getTimestamp("created")
-                                .toLocalDateTime(),
-                        resultSet.getTimestamp("posted")
-                                .toLocalDateTime()
-                );
+                post = new Post.Builder()
+                        .setId(resultSet.getInt("id"))
+                        .setName(resultSet.getString("name"))
+                        .setText(resultSet.getString("text"))
+                        .setLink(resultSet.getString("link"))
+                        .setCreated(resultSet.getTimestamp("created")
+                                .toLocalDateTime())
+                        .setPosted(resultSet.getTimestamp("posted")
+                                .toLocalDateTime())
+                        .build();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -114,14 +122,12 @@ public class PsqlStore implements Store, AutoCloseable {
     }
 
     public static void main(String[] args) {
-        final PsqlStore psqlStore = new PsqlStore(
-                ResourceBundle.getBundle("grabber")
-        );
+        final PsqlStore psqlStore = new PsqlStore();
         final SqlRuParse parse = new SqlRuParse();
         final List<Post> posts = parse
                 .list("https://www.sql.ru/forum/job-offers/");
         posts.forEach(post -> psqlStore.save(parse.detail(post.getLink())));
         psqlStore.getAll().forEach(System.out::println);
-        System.out.println(psqlStore.findById("270244"));
+        System.out.println(psqlStore.findById("27"));
     }
 }

@@ -20,7 +20,7 @@ import java.util.Map;
  */
 public class SqlRuParse implements Parse {
 
-    private final Map<Integer, Post> postMap = new LinkedHashMap<>();
+    private final Map<String, Post> postMap = new LinkedHashMap<>();
 
     private Document getDocument(final String link) {
         Document document = null;
@@ -36,20 +36,18 @@ public class SqlRuParse implements Parse {
     public List<Post> list(final String link) {
         final Document doc = getDocument(link);
         final Elements topics = doc.select(".postslisttopic");
-        final Elements id = doc.select(".altCol:nth-child(3)");
         final Elements datePosted = doc.select(".altCol:nth-child(6)");
         for (int i = 0; i < topics.size(); i++) {
             final String name = topics.get(i).text();
             final String topicLink = topics.get(i).child(0).attr("href");
-            final int userId = Integer.parseInt(
-                    id.get(i).child(0).attr("href").split("=")[1]
-            );
-            final LocalDateTime dateTime = new SqlTimeParser()
+            final LocalDateTime postedTime = new SqlTimeParser()
                     .parse(datePosted.get(i).text());
-            final Post post = new Post(
-                    userId, name, null, topicLink, null, dateTime
-            );
-            postMap.put(userId, post);
+            final Post post = new Post.Builder()
+                    .setName(name)
+                    .setLink(topicLink)
+                    .setPosted(postedTime)
+                    .build();
+            postMap.put(topicLink, post);
         }
         return new ArrayList<>(postMap.values());
     }
@@ -57,22 +55,19 @@ public class SqlRuParse implements Parse {
     @Override
     public Post detail(String link) {
         final Document doc = getDocument(link);
-        final int userId = Integer.parseInt(doc.select(".msgBody")
-                .first().child(0).attr("href").split("=")[1]
-        );
         final String text = doc.select(".msgBody").get(1).text();
         final LocalDateTime created = new SqlTimeParser()
                 .parse(doc.select(".msgFooter")
                         .get(0).text().split(" \\[")[0]
                 );
-        final Post post = postMap.get(userId);
-        return new Post(
-                post.getId(),
-                post.getName(),
-                text,
-                post.getLink(),
-                created,
-                post.getPosted()
-        );
+        final Post post = postMap.get(link);
+        return new Post.Builder()
+                .setId(post.getId())
+                .setName(post.getName())
+                .setText(text)
+                .setLink(post.getLink())
+                .setCreated(created)
+                .setPosted(post.getPosted())
+                .build();
     }
 }
