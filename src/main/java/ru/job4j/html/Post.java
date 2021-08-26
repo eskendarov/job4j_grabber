@@ -51,8 +51,7 @@ public class Post {
             return false;
         }
         final Post post = (Post) o;
-        return getId() == post.getId()
-                && Objects.equals(getName(), post.getName())
+        return Objects.equals(getName(), post.getName())
                 && Objects.equals(getText(), post.getText())
                 && Objects.equals(getLink(), post.getLink())
                 && Objects.equals(getCreated(), post.getCreated())
@@ -62,7 +61,6 @@ public class Post {
     @Override
     public int hashCode() {
         return Objects.hash(
-                getId(),
                 getName(),
                 getText(),
                 getLink(),
