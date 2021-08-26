@@ -29,7 +29,7 @@ public class AlertRabbit {
 
 
     public static void main(String[] args) {
-        final ResourceBundle res = ResourceBundle.getBundle("rabbit");
+        final ResourceBundle res = ResourceBundle.getBundle("grabber");
         final int value = Integer.parseInt(res.getString("rabbit.interval"));
         try (Connection connection = DriverManager.getConnection(
                 res.getString("url"),
