@@ -1,10 +1,15 @@
 package ru.job4j.grabber;
 
-import junit.framework.TestCase;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import ru.job4j.html.Post;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ResourceBundle;
@@ -12,54 +17,65 @@ import java.util.ResourceBundle;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class PsqlStoreTest extends TestCase {
+public class PsqlStoreTest {
 
-    private final Post post = new Post.Builder()
-            .setId(22)
-            .setName("Post Name")
-            .setText("text")
-            .setLink("http://sql.ru")
-            .setCreated(LocalDateTime.parse("2021-05-20T05:54"))
-            .setPosted(LocalDateTime.parse("2021-05-20T05:54"))
-            .build();
+    private static Connection connection;
+    private Post post;
+    private PsqlStore store;
 
-    public Connection init() throws SQLException {
-        final ResourceBundle res = ResourceBundle.getBundle("grabber");
-        return DriverManager.getConnection(
-                res.getString("url"),
-                res.getString("username"),
-                res.getString("password")
+    @BeforeClass
+    public static void initConnection() throws SQLException {
+        final ResourceBundle resources = ResourceBundle.getBundle("test");
+        connection = DriverManager.getConnection(
+                resources.getString("url"),
+                resources.getString("username"),
+                resources.getString("password")
         );
     }
 
-    public void testSave() throws Exception {
-        try (PsqlStore psqlStore = new PsqlStore(
-                ConnectionRollback.create(this.init()))
+    @Before
+    public void initData() {
+        post = new Post.Builder()
+                .setName("Post Name")
+                .setText("text")
+                .setLink("http://sql.ru")
+                .setCreated(LocalDateTime.parse("2021-05-15T13:04"))
+                .setPosted(LocalDateTime.parse("2021-05-20T05:54"))
+                .build();
+        store = new PsqlStore(connection);
+    }
+
+    @AfterClass
+    public static void closeConnection() throws SQLException {
+        connection.close();
+    }
+
+    @After
+    public void clearTable() throws SQLException {
+        try (PreparedStatement statement = connection
+                .prepareStatement("delete from post")
         ) {
-            psqlStore.save(post);
-            final Post expected = psqlStore.getAll().get(0);
-            assertThat(post.getLink(), is(expected.getLink()));
+            statement.execute();
         }
     }
 
-    public void testGetAll() throws Exception {
-        try (PsqlStore psqlStore = new PsqlStore(
-                ConnectionRollback.create(this.init()))
-        ) {
-            psqlStore.save(post);
-            assertThat(psqlStore.getAll().size(), is(1));
-        }
+    @Test
+    public void testSave() {
+        store.save(post);
+        final Post expected = store.getAll().get(0);
+        assertThat(post.getLink(), is(expected.getLink()));
     }
 
-    public void testFindById() throws Exception {
-        try (PsqlStore psqlStore = new PsqlStore(
-                ConnectionRollback.create(this.init()))
-        ) {
-            psqlStore.save(post);
-            final String id = String.valueOf(
-                    psqlStore.getAll().get(0).getId()
-            );
-            assertThat(psqlStore.findById(id).getName(), is(post.getName()));
-        }
+    @Test
+    public void testGetAll() {
+        store.save(post);
+        assertThat(store.getAll().size(), is(1));
+    }
+
+    @Test
+    public void testFindById() {
+        store.save(post);
+        final String id = String.valueOf(store.getAll().get(0).getId());
+        assertThat(store.findById(id).getName(), is(post.getName()));
     }
 }
